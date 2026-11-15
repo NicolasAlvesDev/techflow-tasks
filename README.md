@@ -3,6 +3,8 @@
 Sistema web de gerenciamento de tarefas baseado em metodologias ágeis, desenvolvido pela
 (fictícia) **TechFlow Solutions** para uma startup de logística.
 
+**Vídeo pitch:** https://youtu.be/RMvaUSpdJN8
+
 ## Objetivo
 
 Permitir que a equipe acompanhe o fluxo de trabalho em tempo real por meio de um quadro
