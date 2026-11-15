@@ -31,3 +31,17 @@ def test_create_without_title_returns_400(client):
 
 def test_index_page(client):
     assert client.get("/").status_code == 200
+
+
+def test_stats_endpoint(client):
+    client.post("/api/tasks", json={"title": "A", "priority": "critical"})
+    client.post("/api/tasks", json={"title": "B", "status": "done"})
+    data = client.get("/api/stats").get_json()
+    assert data["total"] == 2
+    assert data["open_critical"] == 1
+    assert data["completion_rate"] == 50.0
+
+
+def test_invalid_priority_returns_400(client):
+    res = client.post("/api/tasks", json={"title": "A", "priority": "xyz"})
+    assert res.status_code == 400

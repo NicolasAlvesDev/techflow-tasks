@@ -22,3 +22,10 @@ def test_status_valid_and_invalid():
     assert validate_status("doing") == "doing"
     with pytest.raises(ValidationError):
         validate_status("pronto")
+
+
+def test_priority_valid_and_invalid():
+    from src.validators import validate_priority
+    assert validate_priority("critical") == "critical"
+    with pytest.raises(ValidationError):
+        validate_priority("urgentissima")
