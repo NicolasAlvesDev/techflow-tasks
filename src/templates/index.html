@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TechFlow Tasks</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; background: #f4f5f7; color: #172b4d; }
+    header { background: #0b3d91; color: #fff; padding: 1rem 1.5rem; }
+    form { display: flex; gap: .5rem; padding: 1rem 1.5rem; flex-wrap: wrap; }
+    input, select, button { padding: .5rem; font: inherit; }
+    .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 0 1.5rem 1.5rem; }
+    .col { background: #ebecf0; border-radius: 6px; padding: .75rem; min-height: 8rem; }
+    .card { background: #fff; border-radius: 4px; padding: .6rem; margin-top: .5rem; box-shadow: 0 1px 2px #0003; }
+    .card small { display: block; color: #5e6c84; }
+    @media (max-width: 700px) { .board { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header><h1>TechFlow Tasks</h1></header>
+  <form id="new-task">
+    <input id="title" placeholder="Título da tarefa" required maxlength="100">
+    <input id="description" placeholder="Descrição">
+    <button>Adicionar</button>
+  </form>
+  <main class="board" id="board"></main>
+  <script>
+    const COLUMNS = { todo: "A Fazer", doing: "Em Progresso", done: "Concluído" };
+
+    async function api(path, options) {
+      const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
+      return res.status === 204 ? null : res.json();
+    }
+
+    async function render() {
+      const tasks = await api("/api/tasks");
+      const board = document.getElementById("board");
+      board.innerHTML = "";
+      for (const [status, label] of Object.entries(COLUMNS)) {
+        const col = document.createElement("section");
+        col.className = "col";
+        const h = document.createElement("h2");
+        h.textContent = label;
+        col.append(h);
+        for (const t of tasks.filter(t => t.status === status)) {
+          const card = document.createElement("div");
+          card.className = "card";
+          const title = document.createElement("strong");
+          title.textContent = t.title;
+          const desc = document.createElement("small");
+          desc.textContent = t.description;
+          const select = document.createElement("select");
+          for (const [value, text] of Object.entries(COLUMNS)) {
+            select.add(new Option(text, value, false, value === t.status));
+          }
+          select.onchange = async () => {
+            await api(`/api/tasks/${t.id}`, { method: "PUT", body: JSON.stringify({ status: select.value }) });
+            render();
+          };
+          const del = document.createElement("button");
+          del.textContent = "Excluir";
+          del.onclick = async () => { await api(`/api/tasks/${t.id}`, { method: "DELETE" }); render(); };
+          card.append(title, desc, select, del);
+          col.append(card);
+        }
+        board.append(col);
+      }
+    }
+
+    document.getElementById("new-task").onsubmit = async (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title");
+      const description = document.getElementById("description");
+      await api("/api/tasks", { method: "POST", body: JSON.stringify({ title: title.value, description: description.value }) });
+      e.target.reset();
+      render();
+    };
+    render();
+  </script>
+</body>
+</html>
