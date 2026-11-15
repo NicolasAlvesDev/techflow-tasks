@@ -3,6 +3,9 @@
 # Status possíveis de uma tarefa = colunas do quadro Kanban
 STATUSES = ("todo", "doing", "done")
 
+# Prioridades (adicionado na mudança de escopo CR-001)
+PRIORITIES = ("low", "medium", "high", "critical")
+
 TITLE_MAX_LENGTH = 100
 
 
@@ -25,3 +28,10 @@ def validate_status(status):
     if status not in STATUSES:
         raise ValidationError(f"Status inválido. Use um destes: {', '.join(STATUSES)}.")
     return status
+
+
+def validate_priority(priority):
+    """Valida a prioridade: deve ser um dos valores de PRIORITIES."""
+    if priority not in PRIORITIES:
+        raise ValidationError(f"Prioridade inválida. Use uma destas: {', '.join(PRIORITIES)}.")
+    return priority

@@ -29,8 +29,13 @@ def create_app(repository=None):
             data.get("title"),
             data.get("description", ""),
             data.get("status", "todo"),
+            data.get("priority", "medium"),
         )
         return jsonify(task.to_dict()), 201
+
+    @app.get("/api/stats")
+    def stats():
+        return jsonify(repo.stats())
 
     @app.get("/api/tasks/<int:task_id>")
     def get_task(task_id):

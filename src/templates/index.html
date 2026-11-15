@@ -21,11 +21,19 @@
   <form id="new-task">
     <input id="title" placeholder="Título da tarefa" required maxlength="100">
     <input id="description" placeholder="Descrição">
+    <select id="priority">
+      <option value="low">Baixa</option>
+      <option value="medium" selected>Média</option>
+      <option value="high">Alta</option>
+      <option value="critical">Crítica</option>
+    </select>
     <button>Adicionar</button>
   </form>
   <main class="board" id="board"></main>
   <script>
     const COLUMNS = { todo: "A Fazer", doing: "Em Progresso", done: "Concluído" };
+
+    const PRIORITIES = { low: "Baixa", medium: "Média", high: "Alta", critical: "CRÍTICA" };
 
     async function api(path, options) {
       const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...options });
@@ -48,7 +56,7 @@
           const title = document.createElement("strong");
           title.textContent = t.title;
           const desc = document.createElement("small");
-          desc.textContent = t.description;
+          desc.textContent = `${PRIORITIES[t.priority]} - ${t.description}`;
           const select = document.createElement("select");
           for (const [value, text] of Object.entries(COLUMNS)) {
             select.add(new Option(text, value, false, value === t.status));
@@ -71,7 +79,7 @@
       e.preventDefault();
       const title = document.getElementById("title");
       const description = document.getElementById("description");
-      await api("/api/tasks", { method: "POST", body: JSON.stringify({ title: title.value, description: description.value }) });
+      await api("/api/tasks", { method: "POST", body: JSON.stringify({ title: title.value, description: description.value, priority: document.getElementById("priority").value }) });
       e.target.reset();
       render();
     };
